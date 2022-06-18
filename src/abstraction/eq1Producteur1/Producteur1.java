@@ -27,6 +27,8 @@ public class Producteur1 extends Producteur1ContratCadre{
 			res.add(this.getStockMoyenne_BE_NA());
 			
 			res.add(this.getStockBQ());
+			res.add(this.getStockMQ());
+			res.add(this.getStockMQ_BE());
 			
 			return res;
 		}

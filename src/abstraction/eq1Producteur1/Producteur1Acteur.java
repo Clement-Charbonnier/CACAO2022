@@ -9,11 +9,15 @@ import java.util.List;
 
 import abstraction.eq8Romu.filiere.Filiere;
 import abstraction.eq8Romu.filiere.IActeur;
+import abstraction.eq8Romu.filiere.IFabricantChocolatDeMarque;
+import abstraction.eq8Romu.filiere.IMarqueChocolat;
 import abstraction.eq8Romu.general.Journal;
 import abstraction.eq8Romu.general.Variable;
+import abstraction.eq8Romu.produits.Chocolat;
+import abstraction.eq8Romu.produits.ChocolatDeMarque;
 
 
-public abstract class Producteur1Acteur implements IActeur {
+public abstract class Producteur1Acteur implements IActeur, IFabricantChocolatDeMarque {
 	private static int NB_INSTANCES = 0; // Afin d'attribuer un nom different a toutes les instances
 	protected int numero;
 	protected Integer cryptogramme;
@@ -134,6 +138,13 @@ public abstract class Producteur1Acteur implements IActeur {
 		return NB_INSTANCES;
 	}
 	
+	public List<ChocolatDeMarque> getChocolatsProduits(){
+		List<ChocolatDeMarque> cm=new ArrayList<ChocolatDeMarque>();
+		cm.add(new ChocolatDeMarque(Chocolat.MQ_O,"CHOCO'riginal"));
+		cm.add(new ChocolatDeMarque(Chocolat.MQ,"CHOCO'riginal"));
+		cm.add(new ChocolatDeMarque(Chocolat.BQ, "O'ptella"));
+		return cm;
+	}
 	
 	
 }

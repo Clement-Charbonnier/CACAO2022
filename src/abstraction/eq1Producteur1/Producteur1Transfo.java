@@ -15,11 +15,7 @@ public class Producteur1Transfo extends Producteur1StockChocolat {
 		// TODO Auto-generated constructor stub
 	}
 
-	/**
-	 * @author laure
-	 * @param FeveProducteur1 feve : type de feve, double quantite : quantité à transformer
-	 * @return ChocolatProducteur1 : chocolat produit
-	 */
+	//Auteur : Khéo
 	public void nextTransformation(Feve f, boolean original) {
 		double quantiteChoco = this.getRecolte().get(f)*0.05; //On transforme 5%% de notre quantité produite sur l'ut
 		double prixTotal = quantiteChoco*Filiere.LA_FILIERE.getIndicateur("coutTransformation").getValeur();
@@ -33,5 +29,7 @@ public class Producteur1Transfo extends Producteur1StockChocolat {
 	public void next() {
 		super.next();
 		this.nextTransformation(Feve.FEVE_BASSE, false);
+		this.nextTransformation(Feve.FEVE_MOYENNE, false);
+		this.nextTransformation(Feve.FEVE_MOYENNE_BIO_EQUITABLE, false);
 	}
 }

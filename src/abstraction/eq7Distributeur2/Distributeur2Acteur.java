@@ -37,6 +37,7 @@ public class Distributeur2Acteur implements IActeur{
 	protected Journal journalEtudeVente;
 	protected Journal journalNegociationContratCadre;
 	protected Journal journal;
+	protected Journal journalPrix;
 	
 	//Indicateurs
 	private List<Variable> listeIndicateur;
@@ -151,39 +152,72 @@ public class Distributeur2Acteur implements IActeur{
 	public void actualiserIndicateurs() {
 		this.chocolats = Filiere.LA_FILIERE.getChocolatsProduits();
 		
+		double stock_HQ_B_O = 0;
+		double stock_HQ_B = 0;
+		double stock_HQ_O = 0;
+		double stock_HQ = 0;
+		double stock_MQ_B_O = 0;
+		double stock_MQ_B = 0;
+		double stock_MQ_O = 0;
+		double stock_MQ = 0;
+		double stock_BQ_O = 0;
+		double stock_BQ = 0;
+		double stockTot = 0;
+		
 		for (ChocolatDeMarque choco : chocolats) {
 			if(choco.getGamme()==Gamme.HAUTE && choco.isBioEquitable() && choco.isOriginal()) {
-				this.stock_HQ_B_O.setValeur(this,this.stock.getQuantite(choco));
+				stock_HQ_B_O+=this.stock.getQuantite(choco);
 			}
 			if(choco.getGamme()==Gamme.HAUTE && choco.isBioEquitable()) {
-				this.stock_HQ_B.setValeur(this,this.stock.getQuantite(choco));;
+				stock_HQ_B+=this.stock.getQuantite(choco);
 			}
 			if(choco.getGamme()==Gamme.HAUTE && choco.isOriginal()) {
+				stock_HQ_O+=this.stock.getQuantite(choco);
 				this.stock_HQ_O.setValeur(this,this.stock.getQuantite(choco));;
 			}
 			if(choco.getGamme()==Gamme.HAUTE) {
+				stock_HQ+=this.stock.getQuantite(choco);
 				this.stock_HQ.setValeur(this,this.stock.getQuantite(choco));;
 			}
 			if(choco.getGamme()==Gamme.MOYENNE && choco.isBioEquitable() && choco.isOriginal()) {
+				stock_MQ_B_O+=this.stock.getQuantite(choco);
 				this.stock_MQ_B_O.setValeur(this,this.stock.getQuantite(choco));;
 			}
 			if(choco.getGamme()==Gamme.MOYENNE && choco.isBioEquitable()) {
+				stock_MQ_B+=this.stock.getQuantite(choco);
 				this.stock_MQ_B.setValeur(this,this.stock.getQuantite(choco));;
 			}
 			if(choco.getGamme()==Gamme.MOYENNE && choco.isOriginal()) {
+				stock_MQ_O+=this.stock.getQuantite(choco);
 				this.stock_MQ_O.setValeur(this,this.stock.getQuantite(choco));;
 			}
 			if(choco.getGamme()==Gamme.MOYENNE) {
+				stock_MQ+=this.stock.getQuantite(choco);
 				this.stock_MQ.setValeur(this,this.stock.getQuantite(choco));;
 			}
 			if(choco.getGamme()==Gamme.BASSE && choco.isOriginal()) {
+				stock_BQ_O+=this.stock.getQuantite(choco);
 				this.stock_BQ_O.setValeur(this,this.stock.getQuantite(choco));;
 			}
 			if(choco.getGamme()==Gamme.BASSE) {
+				stock_BQ+=this.stock.getQuantite(choco);
 				this.stock_BQ.setValeur(this,this.stock.getQuantite(choco));;
 			}
 		}
-		this.stockTotal.setValeur(this,this.stock.getQuantiteTotale());
+		this.stock_HQ_B_O.setValeur(this,stock_HQ_B_O);
+		this.stock_HQ_B.setValeur(this,stock_HQ_B);
+		this.stock_HQ_O.setValeur(this,stock_HQ_O);
+		this.stock_HQ.setValeur(this,stock_HQ);
+		this.stock_MQ_B_O.setValeur(this,stock_MQ_B_O);
+		this.stock_MQ_B.setValeur(this,stock_MQ_B);
+		this.stock_MQ_O.setValeur(this,stock_MQ_O);
+		this.stock_MQ.setValeur(this,stock_MQ);
+		this.stock_BQ_O.setValeur(this,stock_BQ_O);
+		this.stock_BQ.setValeur(this,stock_BQ);
+		stockTot=stock_HQ_B_O+stock_HQ_B+stock_HQ_O+stock_HQ+stock_MQ_B_O+stock_MQ_B+stock_MQ_O+stock_MQ+stock_BQ_O+stock_BQ;
+		
+		
+		this.stockTotal.setValeur(this,stockTot);
 	}
 	
 	// Renvoie les indicateurs
@@ -222,6 +256,7 @@ public class Distributeur2Acteur implements IActeur{
 		this.journalVente = new Journal(this.getNom()+" Vente (Client Final)", this);
 		this.journalEtudeVente = new Journal(this.getNom()+" Etude des ventes (Marché)", this);
 		this.journal = new Journal(this.getNom()+" Activité", this);
+		this.journalPrix = new Journal(this.getNom()+" Suivi des prix de ventes",this);
 	}
 	
 	// Renvoie les journaux
@@ -233,6 +268,7 @@ public class Distributeur2Acteur implements IActeur{
 		j.add(this.journalStock);
 		j.add(this.journalEtudeVente);
 		j.add(this.journalVente);
+		j.add(journalPrix);
 		
 		return j;
 	}

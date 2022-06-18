@@ -1,6 +1,8 @@
 package abstraction.eq7Distributeur2;
 
 
+import java.util.HashMap;
+
 import abstraction.eq8Romu.clients.ClientFinal;
 import abstraction.eq8Romu.filiere.Filiere;
 import abstraction.eq8Romu.filiere.IDistributeurChocolatDeMarque;
@@ -11,6 +13,9 @@ import abstraction.eq8Romu.produits.Gamme;
 public class Distributeur2ChocolatDeMarque extends Distributeur2Achat implements IDistributeurChocolatDeMarque  {
 	
 	private double capaciteDeVente= Double.MAX_VALUE;
+	private double STOCK_MAX=10E4;
+	
+	private HashMap<ChocolatDeMarque,Double> prixChoco;
 	
 
 //edgard: 
@@ -30,6 +35,19 @@ public class Distributeur2ChocolatDeMarque extends Distributeur2Achat implements
 		super();
 	}
 	
+	public void initialiser() {
+		super.initialiser();
+		this.prixChoco = new HashMap<ChocolatDeMarque,Double>();
+		
+		//Définition des prix
+		for (ChocolatDeMarque choco : this.chocolats) {
+			double definedPrice = definePrice(choco);
+			this.prixChoco.put(choco,definedPrice);
+			this.journalPrix.ajouter(choco+" : "+definedPrice);
+		}
+		journalPrix.ajouter("======================================================");
+	}
+	
 	public void next() {
 		super.next();
 		
@@ -42,20 +60,45 @@ public class Distributeur2ChocolatDeMarque extends Distributeur2Achat implements
 		}
 		journalStock.ajouter("===========================================");
 	
-	
+		//Définition des prix
+		for (ChocolatDeMarque choco : this.chocolats) {
+			double definedPrice = definePrice(choco);
+			double previousPrice = 0.;
+			try {
+				previousPrice = this.venteTracker.getPreviousVentePrix(choco);
+			} catch (java.lang.NullPointerException e){}
+			
+			this.prixChoco.put(choco,definedPrice);
+			
+			double delta = definedPrice - previousPrice;
+
+			//Affichage
+			this.journalPrix.ajouter("Prix du chocolat "+choco);
+			if (previousPrice==0.) {
+				this.journalPrix.ajouter(definedPrice+"");
+			} else {
+				if (delta>0) {
+					this.journalPrix.ajouter(this.green(definedPrice + " (+"+delta+")"));
+				}
+				if (delta<0) {
+					this.journalPrix.ajouter(this.red(definedPrice + " ("+delta+")"));
+				}
+				if (delta==0) {
+					this.journalPrix.ajouter(this.yellow(definedPrice+""));
+				}
+			}
+			
+		}
+		journalPrix.ajouter("======================================================");
 	}
 	
-
-		
-//		 Mathis et Camille : le prix des chocolats bioEquitables est mis à chaque étape sous le prix de vente moyen (correspondant à ce chocolat) de l'étape précédente. Au contraire, ceux du non bioEquitable
-//		sont placés au dessus pr créer de la marge. Une fois une certaine part de marché acquise sur un chocolat vendu (75%), le prix ne varie plus (pour éviter de baisser les prix sans fin).		
-		
-	public double prix(ChocolatDeMarque choco) {
-		int currentStep = Filiere.LA_FILIERE.getEtape();
-		if (currentStep != 0) {
-			double prix_precedent = Filiere.LA_FILIERE.prixMoyen(choco, currentStep-1);
+	public double definePrice(ChocolatDeMarque choco) {
+		int currentEtape = Filiere.LA_FILIERE.getEtape();
+		if (currentEtape != 0) {
+			//double prix_precedent = Filiere.LA_FILIERE.prixMoyen(choco, currentEtape-1);
+			double prix_precedent = venteTracker.getPreviousVentePrix(choco); 
 	
-			double quantiteTotale = Filiere.LA_FILIERE.getVentes(choco, currentStep-1);
+			double quantiteTotale = Filiere.LA_FILIERE.getVentes(choco, currentEtape-1);
 			double quantiteVendue = venteTracker.getPreviousVenteQuantite(choco); 
 			
 			if (quantiteVendue/quantiteTotale <= 0.75) {
@@ -68,7 +111,7 @@ public class Distributeur2ChocolatDeMarque extends Distributeur2Achat implements
 						return prix;
 					}
 					if (choco.getGamme()==Gamme.MOYENNE) {
-						double prix = prix_precedent*0.8;
+						double prix = prix_precedent*0.6;
 						if (prix < this.prixMinMQ_B) {
 							prix = this.prixMinMQ_B;
 						}
@@ -104,6 +147,7 @@ public class Distributeur2ChocolatDeMarque extends Distributeur2Achat implements
 						}
 						return prix;
 					}
+				
 				}
 			}
 		}else {
@@ -137,9 +181,18 @@ public class Distributeur2ChocolatDeMarque extends Distributeur2Achat implements
 			else{
 				return 7.5;
 			}
+			
 		}
 		return 10.420;
 	}
+
+//		 Mathis et Camille : le prix des chocolats bioEquitables est mis à chaque étape sous le prix de vente moyen (correspondant à ce chocolat) de l'étape précédente. Au contraire, ceux du non bioEquitable
+//		sont placés au dessus pr créer de la marge. Une fois une certaine part de marché acquise sur un chocolat vendu (75%), le prix ne varie plus (pour éviter de baisser les prix sans fin).		
+		
+	public double prix(ChocolatDeMarque choco) {
+		return this.prixChoco.get(choco);
+	}
+	
 	
 	public double quantiteEnVente(ChocolatDeMarque choco, int crypto) {
 		if (crypto!=this.cryptogramme) {
@@ -174,6 +227,11 @@ public class Distributeur2ChocolatDeMarque extends Distributeur2Achat implements
 		
 		//Ajout d'une entrée dans le journal
 		this.journalVente.ajouter("vente de "+quantite+" "+choco.name()+" a "+client.getNom()+" pour un prix de "+ montant);
+		
+		//Ajout du prix et de la quantité vendue dans le tracker
+		this.venteTracker.trackVentePrix(choco, montant/quantite);
+		
+		this.venteTracker.trackVentesQuantite(choco, quantite);
 	}
 
 	public void notificationRayonVide(ChocolatDeMarque choco, int crypto) {

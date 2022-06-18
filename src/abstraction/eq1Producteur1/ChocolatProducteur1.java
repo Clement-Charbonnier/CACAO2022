@@ -86,7 +86,7 @@ public class ChocolatProducteur1 {
 	//Modifié par : Antoine 
 	//La durée de péremption des fèves est de 2 ans
 	public void MajPeremption() {  
-		if (this.getAge()>Filiere.LA_FILIERE.getParametre("dureePremption").getValeur()) {
+		if (this.getAge()>Filiere.LA_FILIERE.getIndicateur("dureePeremption").getValeur()) {
 			this.setPerime(true);
 		}
 	}

@@ -121,12 +121,12 @@ public class Distributeur2Achat extends Distributeur2Acteur implements IAcheteur
 		
 		double venteBase = demandeAnnee/(nbChocolats*nbDistributeur*nbStepParAn);
 		
-		double quantiteVendue = Filiere.LA_FILIERE.getVentes(chocProduit, currentEtape-1)/nbDistributeur;
+		double quantiteVendue = this.venteTracker.getPreviousVenteQuantite(chocProduit);
 		double quantiteTotale = 0;
 		for (ChocolatDeMarque choco : Filiere.LA_FILIERE.getChocolatsProduits()) {
-			quantiteTotale =  quantiteTotale + (Filiere.LA_FILIERE.getVentes(choco, currentEtape-1)/nbDistributeur);  //à modifier avec classe vente*/
+			quantiteTotale =  quantiteTotale + (this.venteTracker.getPreviousVenteQuantite(choco));
 		}
-		double venteJudicieuse = Math.max((quantiteVendue/quantiteTotale)*venteBase,venteBase/2);
+		double venteJudicieuse = (quantiteVendue/quantiteTotale)*venteBase;
 		
 		this.journalEtudeVente.ajouter("Quantitée determinée judicieuse pour "+chocProduit+" : "+ venteJudicieuse +" kg");
 		return venteJudicieuse;	
